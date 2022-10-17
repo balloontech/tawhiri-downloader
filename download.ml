@@ -23,7 +23,7 @@ module Base_url = struct
     in
     let aws_mirror =
       Limiter_async.Throttle.create_exn
-        ~concurrent_jobs_target:5
+        ~concurrent_jobs_target:10
         ~continue_on_error:false
         ()
     in
