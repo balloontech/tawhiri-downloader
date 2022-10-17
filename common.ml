@@ -4,6 +4,7 @@ module Hour : sig
   type t = private int [@@deriving sexp, compare]
 
   val of_int : int -> t Or_error.t
+  val max_hrs : t
   val to_string : t -> string
   val to_int : t -> int
   val axis : t list
@@ -12,14 +13,22 @@ end = struct
   type t = int [@@deriving sexp, compare]
 
   let of_int i =
-    if i mod 3 = 0 && 0 <= i && i <= 240
+    if i mod 3 = 0 && 0 <= i && i <= 384
     then Ok i
     else Or_error.errorf "Invalid hour %i" i
   ;;
 
+  let max_hrs =
+    match Core.Sys.getenv "MAX_FORECAST_HOURS" with
+      | Some h -> (match of_int (int_of_string h) with
+        | Ok v -> v
+        | _ -> 192)
+      | None -> 192
+  ;;
+
   let to_string = sprintf "%i hrs"
   let to_int i = i
-  let axis = List.range ~stride:3 ~start:`inclusive ~stop:`inclusive 0 240
+  let axis = List.range ~stride:3 ~start:`inclusive ~stop:`inclusive 0 max_hrs
   let index i = i / 3
   let () = List.iter axis ~f:(fun h -> [%test_eq: int Or_error.t] (of_int h) (Ok h))
   let () = List.iteri axis ~f:(fun idx hour -> assert (index hour = idx))

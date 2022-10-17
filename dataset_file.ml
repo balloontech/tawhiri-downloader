@@ -46,7 +46,9 @@ module Filename = struct
   ;;
 end
 
-let shape = 81, 47, 3, 361, 720
+let len_hours = Hour.to_int Hour.max_hrs / 3 + 1
+
+let shape = len_hours, 47, 3, 361, 720
 
 let shape_arr =
   let a, b, c, d, e = shape in
