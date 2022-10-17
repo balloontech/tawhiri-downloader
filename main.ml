@@ -1,8 +1,10 @@
+open Common
 open Core
 open Async
 
 let one_main ?directory ?log_level base_url forecast_time =
   Option.iter log_level ~f:Log.Global.set_level;
+  Log.Global.info "Max forecast hour: %s" (Hour.to_string Hour.max_hrs);
   let interrupt =
     let signal = Ivar.create () in
     Signal.handle Signal.[ int; term ] ~f:(Ivar.fill_if_empty signal);
@@ -77,6 +79,7 @@ let send_mail, wait_for_mails =
 
 let daemon_main ?directory ?log_level ?first_fcst_time ~error_rcpt_to ~base_url () =
   Option.iter log_level ~f:Log.Global.set_level;
+  Log.Global.info "Max forecast hour: %s" (Hour.to_string Hour.max_hrs);
   let send_mail = send_mail ~error_rcpt_to in
   let first_fcst_time =
     match first_fcst_time with
