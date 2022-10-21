@@ -36,4 +36,4 @@ command_time_string = candidate_time.strftime("%Y%m%d%H")
 print(f"Found latest to be {command_time_string}. Starting downloader")
 
 # the assumption is that this script will only ever run inside docker
-os.system(f"/home/opam/tawhiri-downloader/_build/default/main.exe one -base-url aws-mirror {command_time_string}")
+os.system(f"/tawhiri-downloader/_build/default/main.exe one -base-url aws-mirror {command_time_string}")
