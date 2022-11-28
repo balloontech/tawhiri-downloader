@@ -1,0 +1,66 @@
+name: Build and Publish Docker Image
+on:
+  workflow_call:
+    inputs:
+      image-name:
+        required: true
+        type: string
+      image-dir:
+        required: true
+        type: string
+env:
+  PROJECT_ID: ${{ secrets.GKE_PROJECT }}
+  IMAGE: ${{ inputs.image-name }}
+  IMAGE_DIR: ${{ inputs.image-dir }}
+  GKE_CLUSTER: ensemble-predict
+  GKE_ZONE: us-west2-a
+  ARTIFACT_REGISTRY_ZONE: us-west2
+  ARTIFACT_REGISTRY: ensemble-predict
+jobs:
+  build-and-publish-image:
+    name: Build and Publish GUI Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository code
+        uses: actions/checkout@v3
+
+      - name: Set version number environment variable
+        run: |
+          VER=$(cat $IMAGE_DIR/VERSION)
+          echo "VERSION=$VER" >> $GITHUB_ENV
+
+      # Setup gcloud CLI
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          service_account_key: ${{ secrets.SVC_ACCOUNT_KEY }}
+          project_id: ${{ secrets.GKE_PROJECT }}
+
+      # Configure Docker to use the gcloud command-line tool as a credential
+      # helper for authentication (for pushing the image to gcloud)
+      - name: Configure Docker to use gcloud credentials
+        run: |-
+          gcloud --quiet auth configure-docker $ARTIFACT_REGISTRY_ZONE-docker.pkg.dev
+
+      # Get the GKE credentials so we can deploy to the cluster
+      - name: Setup auth with GitHub service account
+        uses: google-github-actions/auth@v0
+        with:
+            credentials_json: ${{ secrets.SVC_ACCOUNT_KEY }}
+      - name: Get GKE credentials
+        uses: google-github-actions/get-gke-credentials@v0
+        with:
+          cluster_name: ${{ env.GKE_CLUSTER }}
+          location: ${{ env.GKE_ZONE }}
+
+      # Build the Docker image
+      - name: Build Docker image
+        run: |-
+          docker build \
+            --tag "$ARTIFACT_REGISTRY_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/$IMAGE:$VERSION" \
+            $IMAGE_DIR
+
+      # Push the Docker image to Google Container Registry
+      - name: Publish Docker image
+        run: |-
+          docker push "$ARTIFACT_REGISTRY_ZONE-docker.pkg.dev/$PROJECT_ID/$ARTIFACT_REGISTRY/$IMAGE:$VERSION"
