@@ -7,8 +7,8 @@ RUN apt-get install -y build-essential rsync git libpcre3-dev libncurses-dev pkg
 RUN apt-get install -y libssl-dev libgmp-dev libffi-dev libeccodes-dev libcurl4-gnutls-dev
 RUN apt-get install -y python3 python3-boto3
 
-RUN opam init -y
-RUN eval $(opam env) && opam install "core=v0.14.1" async ctypes ctypes-foreign ocurl dune
+RUN opam init -y --compiler=4.12.0
+RUN eval $(opam env) && opam install "core=v0.14.1" "async=v0.14.0" "ctypes=0.18.0" "ctypes-foreign=0.18.0" "ocurl=0.9.1" dune
 
 RUN mkdir /tawhiri-downloader
 ADD *.ml *.mli dune* *.py /tawhiri-downloader/
