@@ -32,11 +32,7 @@ for x in range(30): # check for the last 30 possible candidates
 else:
     raise RuntimeError("Could not find latest GFS data")
 
-# command_time_string = candidate_time.strftime("%Y%m%d%H")
-command_time_string = latest_gfs
-# Attempt to get historical wind data (summer of 2021)
-command_time_string = "2021070100"
-
+command_time_string = candidate_time.strftime("%Y%m%d%H")
 print(f"Found latest to be {command_time_string}. Starting downloader")
 
 # the assumption is that this script will only ever run inside docker
