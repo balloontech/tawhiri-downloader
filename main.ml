@@ -81,15 +81,10 @@ let daemon_main ?directory ?log_level ?first_fcst_time ~error_rcpt_to ~base_url 
   Option.iter log_level ~f:Log.Global.set_level;
   Log.Global.info "Max forecast hour: %s" (Hour.to_string Hour.max_hrs);
   let send_mail = send_mail ~error_rcpt_to in
-  (*let first_fcst_time =
+  let first_fcst_time =
     match first_fcst_time with
     | Some x -> x
     | None -> Forecast_time.expect_next_release ()
-  in*)
-  (* DEBUG ONLY Hardcode the forecast time instead of using first_fcst_time parameter *)
-  let first_fcst_time = 
-    Forecast_time.of_string_yyyymmddhh "2021070100" 
-    |> Or_error.ok_exn
   in
   let signal_interrupt =
     Deferred.create (fun ivar ->
